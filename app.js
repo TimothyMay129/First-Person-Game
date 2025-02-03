@@ -21,7 +21,7 @@ scene.add(cube);
 const planeGeometry = new THREE.PlaneGeometry(20, 20);
 const planeMaterial = new THREE.MeshBasicMaterial({ color: 0x228B22 });
 const plane = new THREE.Mesh(planeGeometry, planeMaterial);
-plane.rotation.x = - Math.PI / 2;
+plane.rotation.x = -Math.PI / 2;
 plane.position.y = -1;
 scene.add(plane);
 
@@ -32,19 +32,26 @@ let moveLeft = false;
 let moveRight = false;
 const moveSpeed = 0.1;
 let mouseX = 0, mouseY = 0;
+let isMouseDown = false;
 
 function onDocumentMouseDown(event) {
     isMouseDown = true;
+    console.log('Mouse down');
 }
 
 function onDocumentMouseUp(event) {
     isMouseDown = false;
+    console.log('Mouse up');
 }
 
+document.addEventListener('mousedown', onDocumentMouseDown, false);
+document.addEventListener('mouseup', onDocumentMouseUp, false);
 document.addEventListener('mousemove', onDocumentMouseMove, false);
+
 function onDocumentMouseMove(event) {
     mouseX = (event.clientX / window.innerWidth) * 2 - 1;
     mouseY = -(event.clientY / window.innerHeight) * 2 + 1;
+    console.log(`Mouse move: mouseX=${mouseX}, mouseY=${mouseY}`);
 }
 
 // Add event listeners for keydown and keyup
@@ -94,14 +101,19 @@ function animate() {
 
     if (isMouseDown) {
         // Calculate target rotation
-        targetX = mouseX * 0.001;
-        targetY = mouseY * 0.001;
+        const targetX = mouseX * 0.001;
+        const targetY = mouseY * 0.001;
 
         // Smoothly interpolate camera rotation
         camera.rotation.y += (targetX - camera.rotation.y) * 0.05;
         camera.rotation.x += (targetY - camera.rotation.x) * 0.05;
+
+        // Ensure camera rotation stays within valid ranges
+        camera.rotation.x = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, camera.rotation.x));
+
+        console.log(`Camera rotation: x=${camera.rotation.x}, y=${camera.rotation.y}`);
     }
-    
+
     renderer.render(scene, camera);
 }
 animate();
